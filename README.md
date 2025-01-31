@@ -1,133 +1,107 @@
-1. Title & High-Level Overview
-Project Title: “Wi-Fi Crowdness & Help Button System”
+# Wi-Fi Crowdness & Help Button System
 
-What It Does (1–3 Sentences)
-There are two devices communicating over Wi-Fi:
+## 1. High-Level Overview
 
-A Help Button Device that counts people passing by (using a sensor) and also provides a help button for customers. Pressing the button sends a help request, and an LED lights up once help is confirmed.
-A Monitor Device that pulls data from all Help Button Devices—displaying a crowdness level on a stepper-motor gauge and providing a screen interface. This “crowdness” metric helps decide how many salespeople are needed in that aisle or overall.
-General Sketch (Highlighting Physical Features)
-css
-Copy
-[Help Button Device x N]
- - Wi-Fi MCU
- - People-Counting Sensor (ToF/PIR)
- - Button (Request Help)
- - LED (Help Confirmation)
- 
-                Wi-Fi
-                
-[Monitor Device (Console)]
- - Wi-Fi MCU
- - Screen (UI + data from all help devices)
- - Stepper-Motor Gauge (shows overall crowdness)
- - Possibly a button for staff interactions
+### Project Title: **Wi-Fi Crowdness & Help Button System**
 
- ![Description of the Image](HWSW_Project_I/images/system sketch.png)
+### What It Does
+This project consists of two devices communicating over Wi-Fi:
 
-2. “Help Button Device” Slide (Now with People-Counting Sensor)
-Detailed Sketch
-scss
-Copy
- ┌───────────────────────────────────────────┐
- │   Help Button Device (ESP32 or ESP8266)  │
- │ ┌───────────────────────────────────────┐ │
- │ │ People-Counting Sensor (e.g., ToF)   │ │
- │ └───────────────────────────────────────┘ │
- │ ┌───────────────────────────────────────┐ │
- │ │ Button (Help Request)               │ │
- │ └───────────────────────────────────────┘ │
- │ ┌───────────────────────────────────────┐ │
- │ │ LED (Help Confirmed)                │ │
- │ └───────────────────────────────────────┘ │
- │   Wi-Fi MCU + Custom PCB + Enclosure     │
- └───────────────────────────────────────────┘
-How It Works (Few Sentences)
-People Counting Sensor (e.g., a Time-of-Flight sensor like the ST VL53L1X, or a simple PIR motion sensor) detects and counts passersby in real-time.
-Help Button: When pressed, a help request message is sent over Wi-Fi to the Monitor Device.
-LED: Lights up once the Monitor Device acknowledges the request (“Help is on the way”).
-Wi-Fi MCU (ESP32/ESP8266) aggregates both sensor (people counts) and button events, sends them periodically or on event to the Monitor Device.
-3. “Monitor Device” Slide (Screen + Gauge)
-Detailed Sketch
-scss
-Copy
- ┌──────────────────────────────────────────────┐
- │      Monitor Device (ESP32 or ESP8266)      │
- │ ┌──────────────────────────────────────────┐ │
- │ │ Screen (TFT e.g. ILI9341)              │ │
- │ └──────────────────────────────────────────┘ │
- │ ┌──────────────────────────────────────────┐ │
- │ │ Stepper Motor + Gauge (Crowdness)      │ │
- │ └──────────────────────────────────────────┘ │
- │   Wi-Fi MCU + Custom PCB + Enclosure       │
- └──────────────────────────────────────────────┘
-How It Works (Few Sentences)
-Wi-Fi MCU connects to the local network, pulling or receiving data from multiple Help Button Devices:
-People Counts to gauge how busy an aisle or store section is.
-Help Requests to see if customers pressed the button.
-Screen Display: Shows a user interface listing active help requests, or more detailed data from each device (counts, aisle name, etc.).
-Stepper-Motor Gauge: Reflects an overall “crowdness” level (e.g., from 0 to 100). Higher values mean more traffic => more sales associates needed.
-Optionally a Button or simple input method for the staff to confirm requests or navigate menu items.
-4. Communication & System Diagram Slide
-Figure A: Device-to-Device Communication Workflow
-java
-Copy
-[Help Device] --(Wi-Fi)--> [Monitor Device]
+1. **Help Button Device**:
+   - Counts people passing by using a sensor.
+   - Provides a help button for customers to request assistance.
+   - Lights up an LED once the help request is acknowledged by the Monitor Device.
 
-1. People Counter: Device sends (count data) at intervals or threshold changes.
-2. Help Button Press => sends "HELP_REQUEST" message (LED off).
-3. Monitor Device:
-   - Processes data, updates "crowdness" calculation & gauge.
-   - Acknowledges help => returns "HELP_ACK" => lights LED on device.
-4. Screen UI shows stats (#people, #help requests, etc.).
-Figure B: System Architecture (Detailed)
-scss
-Copy
-       ┌───────────────────────────────────────────────────┐
-       │          Help Button Device (ESP32)             │
-       │  ┌───────────────────────────────────────────┐   │
-   ToF --│--│ I2C or GPIO to MCU for people count    │   │
-  Button-│--│ GPIO input for help requests           │   │
-    LED -│--│ GPIO output for help-confirm LED       │   │
-       │  └───────────────────────────────────────────┘   │
-       │      Wi-Fi (Station Mode) + Custom PCB          │
-       └───────────────────────────────────────────────────┘
-                          ~ ~ ~ ~ ~ ~
-                          Wi-Fi Network
-                          ~ ~ ~ ~ ~ ~
-       ┌───────────────────────────────────────────────────┐
-       │           Monitor Device (ESP32)                 │
-       │  ┌───────────────────────────────────────────┐   │
-       │  │ Screen (TFT, e.g. ILI9341)               │   │
-       │  └───────────────────────────────────────────┘   │
-       │  ┌───────────────────────────────────────────┐   │
-       │  │ Stepper Motor + Driver (Gauge)           │   │
-       │  └───────────────────────────────────────────┘   │
-       │      Wi-Fi (AP or Station) + Custom PCB          │
-       └───────────────────────────────────────────────────┘
+2. **Monitor Device**:
+   - Aggregates data from multiple Help Button Devices.
+   - Displays the crowdness level on a stepper-motor gauge.
+   - Provides a screen interface for more detailed data and insights.
 
-![Description of the Image](HWSW_Project_I/images/Screenshot 2025-01-22 104817.png)
+### General Sketch (Highlighting Physical Features)
+#### Help Button Device:
+- **Wi-Fi MCU**
+- **People-Counting Sensor** (ToF/PIR)
+- **Button** (Request Help)
+- **LED** (Help Confirmation)
 
-Explanation:
+#### Monitor Device (Console):
+- **Wi-Fi MCU**
+- **Screen** (UI + Data from Help Devices)
+- **Stepper-Motor Gauge** (Crowdness Level)
+- Optional **Button** for staff interactions
 
-Help Device measures passersby counts, detects help button presses, sends data to the Monitor via Wi-Fi. If the Monitor acknowledges a request, the device lights the LED.
-Monitor Device aggregates all data, updates the screen with how many requests and people counts, and drives the stepper gauge to show overall “crowdness level.”
+![System Sketch](images/System%20Architecture.png)
+
+---
+
+## 2. Help Button Device
+
+### Detailed Sketch
+![Help Button Schematic](images/Schematic.png)
+
+### How It Works
+- **People-Counting Sensor**:
+  - Uses a Time-of-Flight sensor (e.g., ST VL53L1X) or a simple PIR motion sensor to detect and count passersby in real time.
+- **Help Button**:
+  - When pressed, it sends a "HELP_REQUEST" message over Wi-Fi to the Monitor Device.
+- **LED**:
+  - Lights up once the Monitor Device acknowledges the request (confirmation message: “Help is on the way”).
+- **Wi-Fi MCU**:
+  - Aggregates data from the sensor and the button, and sends it periodically or on events to the Monitor Device.
+
+---
+
+## 3. Monitor Device
+
+### Detailed Sketch
+![Monitor Device Data Flow](images/Data%20Flow.png)
+
+### How It Works
+- **Wi-Fi MCU**:
+  - Connects to the local network and receives data from multiple Help Button Devices.
+  - Aggregates:
+    - **People Counts** to gauge aisle/store section busyness.
+    - **Help Requests** to see customer needs.
+- **Screen**:
+  - Displays a user interface with detailed stats (e.g., people counts, help requests, aisle name).
+- **Stepper Motor Gauge**:
+  - Reflects the overall crowdness level (0–100 scale).
+  - Higher values indicate increased foot traffic, helping allocate more staff.
+- **Optional Button**:
+  - Allows staff to confirm requests or navigate menu items.
+
+---
+
+## 4. Communication & System Diagram
+
+### Communication Workflow (Figure A)
 
 
-Hardware Choices & Part Numbers
-Below are recommended parts; pick alternatives as needed:
+---
 
-Wi-Fi MCU (Both Devices):
-ESP32-WROOM-32 or ESP8266-based dev modules.
-People-Counting Sensor (Help Device):
-ST VL53L1X Time-of-Flight (accurate short-to-mid range)
-or a simpler PIR sensor if you just need motion-based counting.
-Button + LED (Help Device):
-Generic tact switch + 5 mm LED with appropriate resistor.
-Display (Monitor Device):
-7.0" TFT LCD with ILI9488 or RA8875 controller (800x480 or 1024x600 resolution).
-Stepper Motor & Driver (Monitor Device):
-28BYJ-48 stepper + ULN2003 driver
-or NEMA17 + A4988 driver if you want more torque.
-Power Supplies & Regulator:
-e.g., AMS1117-3.3 for the 3.3V rail.
+## 5. Hardware Choices & Part Numbers
+
+### Help Button Device
+| **Component**            | **Description**                                                                 |
+|--------------------------|---------------------------------------------------------------------------------|
+| **Wi-Fi MCU**            | ESP32-WROOM-32 or ESP8266-based modules                                        |
+| **Sensor**               | ST VL53L1X (Time-of-Flight, accurate short-to-mid range) or PIR motion sensor |
+| **Button**               | Generic tactile push-button                                                   |
+| **LED**                  | 5 mm LED with a current-limiting resistor                                      |
+| **Power Supply**         | Lithium-ion battery + AMS1117-3.3 voltage regulator                           |
+
+### Monitor Device
+| **Component**            | **Description**                                                                 |
+|--------------------------|---------------------------------------------------------------------------------|
+| **Wi-Fi MCU**            | ESP32-WROOM-32 or ESP8266-based modules                                        |
+| **Screen**               | 7.0" TFT LCD with ILI9488 or RA8875 controller (800x480 or 1024x600 resolution) |
+| **Stepper Motor**        | 28BYJ-48 stepper motor with ULN2003 driver or NEMA17 with A4988 driver         |
+| **Power Supply**         | USB power adapter or lithium-ion battery pack                                  |
+
+---
+
+## 6. Installation and Usage
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/yourusername/HWSW_Project_I.git
